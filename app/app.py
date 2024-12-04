@@ -15,7 +15,7 @@ def load_data():
 
     # Construct the full path to the CSV file
     file_path = os.path.join(base_dir, 'airQuality_combined.csv')
-    df = pd.read_csv('airQuality_combined.csv')
+    df = pd.read_csv(file_path)
     return df
 
 # Initialize session state
