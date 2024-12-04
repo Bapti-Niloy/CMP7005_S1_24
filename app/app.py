@@ -5,10 +5,16 @@ import pandas as pd
 from Visualization import app as viz_app
 from train_model import app as train_app
 from Findings import app as find_app
+import os
 
 # Cache the data loading function
 @st.cache_data
 def load_data():
+    # Get the absolute path to the directory containing the app
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Construct the full path to the CSV file
+    file_path = os.path.join(base_dir, 'airQuality_combined.csv')
     df = pd.read_csv('airQuality_combined.csv')
     return df
 
