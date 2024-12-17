@@ -99,7 +99,7 @@ def app():
     if show_sunburst_station:
         st.subheader("Sunburst Chart: Mean Pollutant Values by Station")
         melted = df.melt(id_vars='station', value_vars=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3'])
-        fig = px.sunburst(melted, path=['station', 'variable'], values='value', color='value')
+        fig = px.sunburst(melted, path=['station', 'variable'], values='value', color='value',color_continuous_scale='Rdylbu')
         st.plotly_chart(fig)
 
     if show_sunburst_aqi:
