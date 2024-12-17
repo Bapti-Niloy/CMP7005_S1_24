@@ -71,6 +71,9 @@ def app():
 
     df = calculate_aqi(df)
 
+    # Ensure numeric columns are selected
+    numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+
     # Display visualizations based on checkboxes
     if show_histogram:
         st.subheader("Histogram: Pollutant Levels by Station")
@@ -80,8 +83,10 @@ def app():
 
     if show_monthly_avg:
         st.subheader("Monthly Average Pollutant Concentrations")
-        monthly_avg = df.resample("M", on="date").mean()
-        fig = px.line(monthly_avg, x=monthly_avg.index, y=selected_pollutants, title="Monthly Average Pollutant Concentrations")
+        # Resample only numeric columns
+        monthly_avg = df.resample("M", on="date")[numeric_cols].mean().reset_index()
+        fig = px.line(monthly_avg, x="date", y=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3'],
+                      title="Monthly Average Pollutant Concentrations")
         st.plotly_chart(fig)
 
     if show_time_series:
@@ -89,6 +94,7 @@ def app():
         selected_pollutant = st.selectbox("Select a pollutant:", ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 'AQI'])
         fig, ax = plt.subplots()
         df.set_index('date')[selected_pollutant].plot(ax=ax, title=f"{selected_pollutant} Over Time")
+        ax.set_ylabel("Concentration (ug/m3)")
         st.pyplot(fig)
 
     if show_pairplot:
@@ -99,13 +105,15 @@ def app():
     if show_sunburst_station:
         st.subheader("Sunburst Chart: Mean Pollutant Values by Station")
         melted = df.melt(id_vars='station', value_vars=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3'])
-        fig = px.sunburst(melted, path=['station', 'variable'], values='value', color='value',color_continuous_scale='Rdylbu')
+        fig = px.sunburst(melted, path=['station', 'variable'], values='value',
+                          color='value', color_continuous_scale='Rdylbu')
         st.plotly_chart(fig)
 
     if show_sunburst_aqi:
         st.subheader("Sunburst Chart: AQI by Station and Year")
         df['Year'] = df['date'].dt.year
-        fig = px.sunburst(df, path=['station', 'Year'], values='AQI', color='AQI', color_continuous_scale='RdYlGn_r')
+        fig = px.sunburst(df, path=['station', 'Year'], values='AQI',
+                          color='AQI', color_continuous_scale='RdYlGn_r')
         st.plotly_chart(fig)
 
     # Footer
