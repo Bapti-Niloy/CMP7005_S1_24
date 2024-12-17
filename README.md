@@ -7,6 +7,7 @@ This interactive app based on streamlit provides insights into the air quality t
 
 🎯 Purpose
 This app aims to:
+<br>
 📊 Explore historical air quality data from various monitoring stations across Beijing.
 📈 Visualize trends and patterns in key air pollutants like PM2.5, PM10, SO2, NO2, CO, and O3.
 🏭 Identify stations and periods with the highest pollution levels.
