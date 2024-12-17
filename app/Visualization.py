@@ -107,3 +107,12 @@ def app():
         df['Year'] = df['date'].dt.year
         fig = px.sunburst(df, path=['station', 'Year'], values='AQI', color='AQI', color_continuous_scale='RdYlGn_r')
         st.plotly_chart(fig)
+
+    # Footer
+    st.markdown(
+        """
+        ---
+        **Created by [Bapti Niloy Sarkar](mailto:baptiniloy@gmail.com)**  
+        """,
+        unsafe_allow_html=True
+    )

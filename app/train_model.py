@@ -162,3 +162,12 @@ def app():
     ax.set_title("RMSE vs. Number of Neighbors")
     ax.legend()
     st.pyplot(fig)
+
+    # Footer
+    st.markdown(
+        """
+        ---
+        **Created by [Bapti Niloy Sarkar](mailto:baptiniloy@gmail.com)**  
+        """,
+        unsafe_allow_html=True
+    )

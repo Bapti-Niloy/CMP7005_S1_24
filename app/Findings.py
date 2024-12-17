@@ -54,3 +54,11 @@ def app():
     These findings provide valuable insights into the air quality situation in Beijing and can guide decision-making for **environmental management** and **public health strategies**.  
     Continued monitoring and further research can help refine these findings and lead to even more effective solutions for improving air quality in the region.
     """)
+    # Footer
+    st.markdown(
+        """
+        ---
+        **Created by [Bapti Niloy Sarkar](mailto:baptiniloy@gmail.com)**  
+        """,
+        unsafe_allow_html=True
+    )
