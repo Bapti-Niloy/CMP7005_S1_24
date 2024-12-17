@@ -3,7 +3,7 @@ import pandas as pd
 from Visualization import app as viz_app
 from train_model import app as train_app
 from Findings import app as find_app
-
+import os
 # Cache the data loading function
 @st.cache_data
 def load_data():
@@ -18,7 +18,7 @@ def load_data():
 # Initialize session state
 if "data" not in st.session_state:
     st.session_state["data"] = load_data()
-    
+
 # Home Page Function
 def home_page(df):
     # Header
