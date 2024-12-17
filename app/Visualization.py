@@ -49,6 +49,11 @@ def calculate_aqi(df):
     df["AQI_Category"] = df["AQI"].apply(get_aqi_category)
     return df
 
+@st.cache_data
+def preprocess_data(df):
+    df['date'] = pd.to_datetime(df[['day', 'month', 'year']], errors='coerce')
+    return df.dropna(subset=['date'])
+
 def app():
     st.title("Visualizations")
     st.write("Explore visual insights.")
