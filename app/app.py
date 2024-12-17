@@ -4,12 +4,21 @@ from Visualization import app as viz_app
 from train_model import app as train_app
 from Findings import app as find_app
 
-# Cache and load the data
+# Cache the data loading function
 @st.cache_data
 def load_data():
-    """Load air quality dataset."""
-    return pd.read_csv("airQuality_combined.csv")
+    # Get the absolute path to the directory containing the app
+    base_dir = os.path.dirname(os.path.abspath(__file__))
 
+    # Construct the full path to the CSV file
+    file_path = os.path.join(base_dir, 'airQuality_combined.csv')
+    df = pd.read_csv(file_path)
+    return df
+
+# Initialize session state
+if "data" not in st.session_state:
+    st.session_state["data"] = load_data()
+    
 # Home Page Function
 def home_page(df):
     # Header
