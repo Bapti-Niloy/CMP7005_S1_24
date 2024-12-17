@@ -3,7 +3,7 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import time
 @st.cache_data
 def calculate_aqi(df):
     """Calculate AQI and its category for each row in the dataset."""
@@ -52,6 +52,30 @@ def calculate_aqi(df):
 def app():
     st.title("Visualizations")
     st.write("Explore visual insights.")
+
+    st.title("📊 Real-Time Pollutant Monitoring")
+
+    df = st.session_state["data"]
+    df = preprocess_data(df)
+
+    # Select Station for Real-Time Monitoring
+    station = st.selectbox("Select a Station for Monitoring:", df['station'].unique())
+    refresh_interval = st.slider("Refresh Interval (seconds)", 1, 10, 5)
+
+    # Real-time updates
+    placeholder = st.empty()
+    while True:
+        # Filter and display the latest data
+        recent_data = df[df['station'] == station].tail(20)
+        fig = px.line(
+            recent_data,
+            x="date",
+            y=["PM2.5", "PM10", "SO2", "NO2", "CO", "O3"],
+            title=f"Real-Time Pollutant Levels at {station}",
+            markers=True
+        )
+        placeholder.plotly_chart(fig, use_container_width=True)
+        time.sleep(refresh_interval)
 
     df = st.session_state["data"]
 
