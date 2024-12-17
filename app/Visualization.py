@@ -51,30 +51,27 @@ def calculate_aqi(df):
 
 def app():
     st.title("📊 Visualizations")
-    st.write("Select the visualizations you'd like to explore:")
 
+    # Sidebar for fixed checkboxes
+    st.sidebar.title("Select Visualizations")
+    show_histogram = st.sidebar.checkbox("Show Histogram: Pollutant Levels by Station", value=True)
+    show_monthly_avg = st.sidebar.checkbox("Show Monthly Average Line Plot")
+    show_time_series = st.sidebar.checkbox("Show Time-Series Plot")
+    show_pairplot = st.sidebar.checkbox("Show Pairwise Scatter Plots")
+    show_sunburst_station = st.sidebar.checkbox("Show Sunburst Chart: Mean Pollutants by Station")
+    show_sunburst_aqi = st.sidebar.checkbox("Show Sunburst Chart: AQI by Station and Year")
+
+    # Main data processing
     df = st.session_state["data"]
-
-    # Check for required columns
     if all(col in df.columns for col in ['day', 'month', 'year']):
         df['date'] = pd.to_datetime(df[['day', 'month', 'year']], errors='coerce')
     else:
         st.error("The dataset must contain 'day', 'month', and 'year' columns to construct the 'date' column.")
         return
 
-    numeric_cols = ["PM2.5", "PM10", "SO2", "NO2", "CO", "O3", "TEMP", "PRES", "DEWP", "RAIN", "WSPM"]
-    df[numeric_cols] = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
     df = calculate_aqi(df)
 
-    # Checkboxes for visualization selection
-    show_histogram = st.checkbox("Show Histogram: Pollutant Levels by Station", value=True)
-    show_monthly_avg = st.checkbox("Show Monthly Average Line Plot")
-    show_time_series = st.checkbox("Show Time-Series Plot")
-    show_pairplot = st.checkbox("Show Pairwise Scatter Plots")
-    show_sunburst_station = st.checkbox("Show Sunburst Chart: Mean Pollutants by Station")
-    show_sunburst_aqi = st.checkbox("Show Sunburst Chart: AQI by Station and Year")
-
-    # Display selected charts
+    # Display visualizations based on checkboxes
     if show_histogram:
         st.subheader("Histogram: Pollutant Levels by Station")
         selected_pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
@@ -83,33 +80,26 @@ def app():
 
     if show_monthly_avg:
         st.subheader("Monthly Average Pollutant Concentrations")
-        df['Year'] = df['date'].dt.year
-        df['Month'] = df['date'].dt.month
-        monthly_avg = df.groupby(['Year', 'Month'])[numeric_cols].mean().reset_index()
-        monthly_avg['Date'] = pd.to_datetime(monthly_avg[['Year', 'Month']].assign(DAY=1))
-        fig = px.line(monthly_avg, x="Date", y=selected_pollutants, title="Monthly Average Pollutant Concentrations")
+        monthly_avg = df.resample("M", on="date").mean()
+        fig = px.line(monthly_avg, x=monthly_avg.index, y=selected_pollutants, title="Monthly Average Pollutant Concentrations")
         st.plotly_chart(fig)
 
     if show_time_series:
         st.subheader("Time-Series Plot")
-        pollutants = numeric_cols + ['AQI']
-        selected_pollutant = st.selectbox("Select a pollutant to view its graph:", pollutants)
-        fig, ax = plt.subplots(figsize=(12, 6))
-        df.set_index('date')[selected_pollutant].plot(ax=ax, marker='.', linestyle='-', title=f"{selected_pollutant} Over Time")
-        ax.set_ylabel("Concentration (ug/m3)")
+        selected_pollutant = st.selectbox("Select a pollutant:", ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3', 'AQI'])
+        fig, ax = plt.subplots()
+        df.set_index('date')[selected_pollutant].plot(ax=ax, title=f"{selected_pollutant} Over Time")
         st.pyplot(fig)
 
     if show_pairplot:
         st.subheader("Pairwise Scatter Plots")
-        selected_pollutants = ['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']
-        sns_fig = sns.pairplot(df[selected_pollutants].dropna(), diag_kind="kde", plot_kws={"alpha": 0.5})
+        sns_fig = sns.pairplot(df[['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3']].dropna())
         st.pyplot(sns_fig.figure)
 
     if show_sunburst_station:
-        st.subheader("Sunburst Chart: Mean Pollutant Values per Station")
-        mean_pollutant_per_station = df.groupby('station')[selected_pollutants].mean()
-        melted = mean_pollutant_per_station.reset_index().melt(id_vars='station', var_name='Pollutant', value_name='Mean Value')
-        fig = px.sunburst(melted, path=['station', 'Pollutant'], values='Mean Value', color='Mean Value')
+        st.subheader("Sunburst Chart: Mean Pollutant Values by Station")
+        melted = df.melt(id_vars='station', value_vars=['PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3'])
+        fig = px.sunburst(melted, path=['station', 'variable'], values='value', color='value')
         st.plotly_chart(fig)
 
     if show_sunburst_aqi:
