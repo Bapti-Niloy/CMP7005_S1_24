@@ -1,4 +1,4 @@
-# CMP7005_S1_24
+# Beijing Air Quality Analysis CMP7005_S1_24
 Final Project
 
 🏙️ Beijing Air Quality Analysis<br>
